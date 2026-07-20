@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News Analyzer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0A1628;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1.2rem 3rem;
+      background: #0F1E35;
+      border-bottom: 1px solid #1E3A4A;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo h1 { font-size: 1.4rem; font-weight: 800; }
+
+    .badges { display: flex; gap: 0.5rem; }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+    .badge.blue { color: #00C6FF; border-color: #00C6FF; background: #0A2030; }
+    .badge.green { color: #2ECC71; border-color: #2ECC71; background: #0A2018; }
+    .badge.purple { color: #A78BFA; border-color: #A78BFA; background: #1A1030; }
+
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 1rem;
+    }
+
+    .hero h2 {
+      font-size: 2.6rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #00C6FF, #7B2FBE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p { color: #607D8B; font-size: 0.95rem; }
+
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 1.5rem;
+      border-top: 1px solid #1E3A4A;
+      border-bottom: 1px solid #1E3A4A;
+      margin: 1.5rem 3rem;
+      border-radius: 12px;
+      background: #0F1E35;
+    }
+
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: #00C6FF; }
+    .stat-label { font-size: 0.75rem; color: #607D8B; margin-top: 0.2rem; }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1rem 0.5rem;
+    }
+
+    button.fetch-btn {
+      background: linear-gradient(135deg, #00C6FF, #7B2FBE);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 2.5rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+
+    button.fetch-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    button.fetch-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: #1A2635;
+      color: #B0BEC5;
+      border: 1px solid #2A3F55;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: #00C6FF;
+      color: #0A1628;
+      border-color: #00C6FF;
+    }
+
+    .status {
+      text-align: center;
+      color: #607D8B;
+      font-size: 0.88rem;
+      padding: 0.75rem;
+      min-height: 2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
+      padding: 0.5rem 3rem 3rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #0F1E35;
+      border: 1px solid #1E3A4A;
+      border-left: 4px solid #00C6FF;
+      border-radius: 12px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-left-color: #7B2FBE;
+      box-shadow: 0 8px 30px rgba(0,198,255,0.08);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-source {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #00C6FF;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .card-time {
+      font-size: 0.72rem;
+      color: #37474F;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #E8F4FD;
+      line-height: 1.45;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: #78909C;
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .card-link {
+      display: inline-block;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: #00C6FF;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .card-link:hover { color: #7B2FBE; }
+
+    .skeleton {
+      background: #0F1E35;
+      border: 1px solid #1E3A4A;
+      border-left: 4px solid #1E3A4A;
+      border-radius: 12px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .skel-line {
+      background: linear-gradient(90deg, #1E3A4A, #2A4F6A, #1E3A4A);
+      background-size: 200% 100%;
+      border-radius: 6px;
+      animation: shimmer 1.4s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .empty {
+      text-align: center;
+      color: #37474F;
+      padding: 4rem;
+      font-size: 1rem;
+      grid-column: 1 / -1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid #1E3A4A;
+      color: #37474F;
+      font-size: 0.8rem;
+    }
+
+    footer span { color: #00C6FF; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span style="font-size:1.5rem">📰</span>
+      <h1>News Analyzer</h1>
+    </div>
+    <div class="badges">
+      <div class="badge blue">AWS Lambda</div>
+      <div class="badge green">DynamoDB</div>
+      <div class="badge purple">Terraform</div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h2>Today's Top Headlines</h2>
+    <p>Fetched live from NewsAPI · Stored in DynamoDB · Served via API Gateway</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value" id="statCount">—</div>
+      <div class="stat-label">Articles Loaded</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statSources">—</div>
+      <div class="stat-label">Unique Sources</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statTime">—</div>
+      <div class="stat-label">Last Fetched</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchNews()">🔄 Fetch Latest News</button>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="status" id="status">Click the button to load live news from AWS.</div>
+
+  <div class="grid" id="grid">
+    <div class="empty">No articles loaded yet.<br>Hit "Fetch Latest News" to start.</div>
+  </div>
+
+
+  <script>
+    const API_URL = "https://yzmafcftkd.execute-api.us-east-1.amazonaws.com//news";
+    let allArticles = [];
+    let activeFilter = "All";
+
+    function showSkeletons() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        grid.innerHTML += `
+          <div class="skeleton">
+            <div class="skel-line" style="height:12px;width:40%"></div>
+            <div class="skel-line" style="height:18px;width:90%"></div>
+            <div class="skel-line" style="height:18px;width:75%"></div>
+            <div class="skel-line" style="height:13px;width:100%"></div>
+            <div class="skel-line" style="height:13px;width:85%"></div>
+            <div class="skel-line" style="height:13px;width:60%"></div>
+          </div>`;
+      }
+    }
+
+    function renderCards(articles) {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      if (articles.length === 0) {
+        grid.innerHTML = '<div class="empty">No articles match this filter.</div>';
+        return;
+      }
+
+      const colors = ["#00C6FF","#7B2FBE","#2ECC71","#F39C12","#E74C3C","#1ABC9C"];
+      articles.forEach((article, i) => {
+        const time = article.publishedAt
+          ? new Date(article.publishedAt).toLocaleString()
+          : "";
+        const color = colors[i % colors.length];
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.borderLeftColor = color;
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-source">${article.source}</div>
+            <div class="card-time">${time}</div>
+          </div>
+          <div class="card-title">${article.title}</div>
+          <div class="card-desc">${article.description || "No description available."}</div>
+          ${article.url ? `<a class="card-link" href="${article.url}" target="_blank">Read full article →</a>` : ""}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function buildFilters(articles) {
+      const sources = ["All", ...new Set(articles.map(a => a.source))];
+      const container = document.getElementById("filters");
+      container.innerHTML = "";
+      sources.forEach(src => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn" + (src === "All" ? " active" : "");
+        btn.textContent = src;
+        btn.onclick = () => {
+          activeFilter = src;
+          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const filtered = src === "All" ? allArticles : allArticles.filter(a => a.source === src);
+          renderCards(filtered);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    async function fetchNews() {
+      const btn = document.getElementById("fetchBtn");
+      const status = document.getElementById("status");
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Fetching...";
+      status.textContent = "Calling AWS Lambda via API Gateway...";
+      showSkeletons();
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        allArticles = data.articles || [];
+
+        if (allArticles.length === 0) {
+          document.getElementById("grid").innerHTML = '<div class="empty">No articles returned.</div>';
+          status.textContent = "No articles found.";
+          return;
+        }
+
+        const sources = new Set(allArticles.map(a => a.source));
+        document.getElementById("statCount").textContent = allArticles.length;
+        document.getElementById("statSources").textContent = sources.size;
+        document.getElementById("statTime").textContent = new Date().toLocaleTimeString();
+
+        status.textContent = `✅ ${allArticles.length} articles loaded successfully`;
+        buildFilters(allArticles);
+        activeFilter = "All";
+        renderCards(allArticles);
+
+      } catch (err) {
+        status.textContent = "❌ Error fetching news. Make sure the local server is running.";
+        document.getElementById("grid").innerHTML = '<div class="empty">Failed to load articles.</div>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🔄 Fetch Latest News";
+      }
+    }
+  </script>
+
+</body>
+</html>

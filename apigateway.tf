@@ -1,6 +1,12 @@
 resource "aws_apigatewayv2_api" "news_api" {
   name          = "news-analyzer-api"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "OPTIONS"]
+    allow_headers = ["Content-Type"]
+  }
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {
