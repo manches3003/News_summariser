@@ -6,3 +6,4 @@ terraform.tfstate.backup
 side_tasks/
 Theoritical_part/
 response.json
+.vscode/
