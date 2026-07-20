@@ -4,5 +4,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.lock.hcl
 side_tasks/
-Theoretical_part/
+Theoritical_part/
 response.json
