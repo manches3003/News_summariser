@@ -7,3 +7,5 @@ side_tasks/
 Theoritical_part/
 response.json
 .vscode/
+*.credentials
+.aws/
