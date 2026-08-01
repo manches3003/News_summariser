@@ -100,7 +100,9 @@ aws secretsmanager put-secret-value --secret-id news-api-key --secret-string '{\
 ```
 
 ### Step 5 — Hosted on AWS S3
+```
 Open `https://news-analyzer-frontend-kevin.s3.amazonaws.com/index.html` in your browser and click **Fetch Latest News**.
+```
 ---
 
 ## API Endpoint
