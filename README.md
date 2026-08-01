@@ -99,12 +99,8 @@ aws secretsmanager put-secret-value \
 aws secretsmanager put-secret-value --secret-id news-api-key --secret-string '{\"api_key\":\"YOUR_NEWSAPI_KEY_HERE\"}' --region us-east-1
 ```
 
-### Step 5 — Start the frontend
-```bash
-python -m http.server 8080
-```
-Open `http://localhost:8080/index.html` in your browser and click **Fetch Latest News**.
-
+### Step 5 — Hosted on AWS S3
+Open `https://news-analyzer-frontend-kevin.s3.amazonaws.com/index.html` in your browser and click **Fetch Latest News**.
 ---
 
 ## API Endpoint
